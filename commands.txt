@@ -1,0 +1,10 @@
+//compile
+nasm -f bin boot.asm -o boot.bin
+
+//run
+qemu-system-x86_64 boot.bin
+
+
+//compile and run
+nasm -f bin boot.asm -o boot.bin
+qemu-system-x86_64 boot.bin
