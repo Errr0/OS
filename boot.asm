@@ -1,8 +1,9 @@
 ;[org 0x7c00]
-buff:
-    times 10 db 0
+string:
+    db 0
+    mov
 input:
-    mov bx, buff
+    mov bx, string
     mov ah, 0x00
     int 0x16
     mov ah, 0x0e
@@ -13,14 +14,14 @@ input:
     je go
     jmp input
 go:
-    mov bx, buff
+    mov bx, string
     mov ah, 0x0e
 print:
     mov al, [bx]
-    int 0x10
-    inc bx
     cmp al, 0
     je exit
+    int 0x10
+    inc bx
     jmp print
 
 loop:
