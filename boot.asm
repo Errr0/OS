@@ -1,47 +1,59 @@
-GDT_Start:
-    null_descriptor:
-        dd 0
-        dd 0
-    code_descriptor:
-        dw 0xffff
-        dw 0
-        dd 0
-        db 10011010
-        db 11001111
-        db 0
-    data_descriptor:
-        dw 0xffff
-        dw 0
-        dd 0
-        db 10010010
-        db 11001111
-        db 0
-GDT_End:
-    
-GDT_Descriptor:
-    dw GDT_End - GDT_Start - 1
-    dd GDT_Start
+[org 0x7c00]                        
+      
 
-CODE_SEG equ code_descriptor - GDT_Start
-DATA_SEG equ data_descriptor - GDT_Start
+mov [BOOT_DISK], dl                 
+
+
+
+CODE_SEG equ GDT_code - GDT_start
+DATA_SEG equ GDT_data - GDT_start
 
 cli
-lgdt [GDT_Descriptor]
-
+lgdt [GDT_descriptor]
 mov eax, cr0
 or eax, 1
-mov cr0, eax; yay, 32 bit mode!!
-; far jump (jmp to other segment)
+mov cr0, eax
 jmp CODE_SEG:start_protected_mode
+
+jmp $
+                                    
+                                     
+GDT_start:                          ; must be at the end of real mode code
+    GDT_null:
+        dd 0x0
+        dd 0x0
+
+    GDT_code:
+        dw 0xffff
+        dw 0x0
+        db 0x0
+        db 0b10011010
+        db 0b11001111
+        db 0x0
+
+    GDT_data:
+        dw 0xffff
+        dw 0x0
+        db 0x0
+        db 0b10010010
+        db 0b11001111
+        db 0x0
+
+GDT_end:
+
+GDT_descriptor:
+    dw GDT_end - GDT_start - 1
+    dd GDT_start
+
 
 [bits 32]
 start_protected_mode:
-    ; videoMemory = oxb8000
-    ; first  byte: char
-    ; second byte: colour
     mov al, 'A'
-    mov ah, 0x0f ; white
+    mov ah, 0x0f
     mov [0xb8000], ax
-jmp $
-times 510-($-$$) db 0
-db 0x55, 0xaa
+    jmp $
+
+BOOT_DISK: db 0                                     
+ 
+times 510-($-$$) db 0              
+dw 0xaa55
